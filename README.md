@@ -18,7 +18,7 @@ A high-performance, feature-rich HTTP proxy server implemented in Go.
 ## Installation
 
 ```bash
-go get github.com/yourusername/proxy
+go get github.com/oabraham1/go-http-proxy
 ```
 
 ## Quick Start

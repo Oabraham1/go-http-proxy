@@ -9,10 +9,11 @@ import (
 
 type Config struct {
     Server struct {
-        Port            int           `yaml:"port"`
-        ReadTimeout     time.Duration `yaml:"readTimeout"`
-        WriteTimeout    time.Duration `yaml:"writeTimeout"`
-        MaxHeaderBytes  int           `yaml:"maxHeaderBytes"`
+        Port           int           `yaml:"port"`
+        ReadTimeout    time.Duration `yaml:"readTimeout"`
+        WriteTimeout   time.Duration `yaml:"writeTimeout"`
+        MaxHeaderBytes int           `yaml:"maxHeaderBytes"`
+        TLS           *TLSConfig    `yaml:"tls,omitempty"`  // Add TLS config here
     } `yaml:"server"`
 
     Proxy struct {
@@ -46,15 +47,31 @@ type Config struct {
         Burst   int     `yaml:"burst"`
     } `yaml:"rateLimit"`
 
+    Security struct {
+        Headers struct {
+            Enabled bool   `yaml:"enabled"`
+            CSP     string `yaml:"csp,omitempty"`
+        } `yaml:"headers"`
+        CORS struct {
+            Enabled          bool     `yaml:"enabled"`
+            AllowedOrigins   []string `yaml:"allowedOrigins"`
+            AllowedMethods   []string `yaml:"allowedMethods"`
+            AllowedHeaders   []string `yaml:"allowedHeaders"`
+            ExposedHeaders   []string `yaml:"exposedHeaders"`
+            AllowCredentials bool     `yaml:"allowCredentials"`
+            MaxAge          int      `yaml:"maxAge"`
+        } `yaml:"cors"`
+    } `yaml:"security"`
+
     Services map[string]ServiceConfig `yaml:"services"`
 }
 
 type ServiceConfig struct {
-    URL             string            `yaml:"url"`
-    Timeout         time.Duration     `yaml:"timeout"`
-    RateLimit       *RateLimitConfig  `yaml:"rateLimit,omitempty"`
-    CircuitBreaker  *BreakerConfig   `yaml:"circuitBreaker,omitempty"`
-    Headers         map[string]string `yaml:"headers,omitempty"`
+    URL            string            `yaml:"url"`
+    Timeout        time.Duration     `yaml:"timeout"`
+    RateLimit      *RateLimitConfig  `yaml:"rateLimit,omitempty"`
+    CircuitBreaker *BreakerConfig    `yaml:"circuitBreaker,omitempty"`
+    Headers        map[string]string `yaml:"headers,omitempty"`
 }
 
 type RateLimitConfig struct {
@@ -65,6 +82,14 @@ type RateLimitConfig struct {
 type BreakerConfig struct {
     MaxFailures int           `yaml:"maxFailures"`
     Timeout     time.Duration `yaml:"timeout"`
+}
+
+type TLSConfig struct {
+    Enabled      bool     `yaml:"enabled"`
+    CertFile     string   `yaml:"certFile"`
+    KeyFile      string   `yaml:"keyFile"`
+    MinVersion   string   `yaml:"minVersion"`
+    CipherSuites []string `yaml:"cipherSuites"`
 }
 
 func Load(path string) (*Config, error) {
